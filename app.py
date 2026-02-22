@@ -165,7 +165,8 @@ def load_index():
     return load_index_from_storage(storage_context)
 
 
-def run_query(index, question, source_filter=None, top_k=8, llm=None):
+def run_query(index, question, source_filter=None, top_k=8):
+    llm = Groq(model="llama3-8b-8192", api_key=st.secrets["GROQ_API_KEY"])
     if source_filter:
         filters = MetadataFilters(filters=[
             MetadataFilter(key="source", value=source_filter)
@@ -174,11 +175,13 @@ def run_query(index, question, source_filter=None, top_k=8, llm=None):
             similarity_top_k=top_k,
             response_mode="compact",
             filters=filters,
+            llm=llm,
         )
     else:
         engine = index.as_query_engine(
             similarity_top_k=top_k,
             response_mode="compact",
+            llm=llm,
         )
     return engine.query(f"{question} Answer only using information from the provided source documents. If the documents do not contain relevant information, say so explicitly rather than generalizing.")
 
