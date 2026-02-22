@@ -179,7 +179,7 @@ def run_query(index, question, source_filter=None, top_k=8):
     nodes = retriever.retrieve(question)
 
     # Step 2: build context from retrieved chunks
-    context = "\n\n".join([n.text for n in nodes])
+    context = "\n\n".join([n.text[:500] for n in nodes[:5]])
 
     # Step 3: call Groq directly — no LlamaIndex LLM involved
     client = GroqClient(api_key=st.secrets["GROQ_API_KEY"])
