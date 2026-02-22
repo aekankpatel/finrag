@@ -217,10 +217,13 @@ with st.sidebar:
     st.header("⚙️ Settings")
     st.session_state.mode = st.radio("Mode", ["Single", "Compare"], horizontal=True)
 
-    manual_filter = st.selectbox(
-        "Filter by document (optional override)",
-        ["Auto-detect", "All documents"] + ALL_DOCS
-    )
+    if st.session_state.mode == "Single":
+        manual_filter = st.selectbox(
+            "Filter by document",
+            ["Auto-detect", "All documents"] + ALL_DOCS
+        )
+    else:
+        manual_filter = "All documents"
     top_k = st.slider("Number of source chunks", min_value=3, max_value=15, value=8)
     st.divider()
 
