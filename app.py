@@ -79,6 +79,9 @@ def format_export(question, answer, sources, source_filter):
         lines.append(node.text[:300].strip())
     return "\n".join(lines)
 
+from finrag.startup import ensure_index
+ensure_index()
+
 st.set_page_config(page_title="FinRAG", page_icon="📊", layout="wide")
 
 st.markdown("""
