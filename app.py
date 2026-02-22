@@ -2,6 +2,7 @@ import streamlit as st
 from pathlib import Path
 from pydantic import Field
 from datetime import datetime
+import gdown
 from llama_index.core import load_index_from_storage, StorageContext, Settings
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
@@ -9,11 +10,24 @@ from llama_index.llms.groq import Groq
 
 INDEX_DIR = Path("finrag/index")
 PROCESSED_DIR = Path("finrag/data/processed")
+FOLDER_ID = "1NiAUNTdyA6OX5V1ZVxoT1KrgOKk2kEQs"
+
+# ---- Auto-download index from Google Drive if missing ----
+def ensure_index():
+    if not INDEX_DIR.exists() or not (INDEX_DIR / "docstore.json").exists():
+        INDEX_DIR.mkdir(parents=True, exist_ok=True)
+        gdown.download_folder(
+            id=FOLDER_ID,
+            output=str(INDEX_DIR),
+            quiet=False,
+        )
+
+ensure_index()
 
 ALL_DOCS = sorted([
     f.name for f in PROCESSED_DIR.glob("*.txt")
     if f.name != "manifest.csv"
-])
+]) if PROCESSED_DIR.exists() else []
 
 COMPANY_MAP = {
     "meta": "meta_10K_2025.txt",
@@ -78,9 +92,6 @@ def format_export(question, answer, sources, source_filter):
         lines.append(f"\n[{i}] {src} | Score: {score}")
         lines.append(node.text[:300].strip())
     return "\n".join(lines)
-
-from finrag.startup import ensure_index
-ensure_index()
 
 st.set_page_config(page_title="FinRAG", page_icon="📊", layout="wide")
 
