@@ -158,7 +158,7 @@ st.markdown("""
 @st.cache_resource(show_spinner="Loading financial index...")
 def load_index():
     embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
-    llm = Groq(model="llama3-8b-8192", api_key=st.secrets["GROQ_API_KEY"])
+    llm = Groq(model="llama-3.1-8b-instant", api_key=st.secrets["GROQ_API_KEY"])
     Settings.embed_model = embed_model
     Settings.llm = llm
     storage_context = StorageContext.from_defaults(persist_dir=str(INDEX_DIR))
@@ -184,7 +184,7 @@ def run_query(index, question, source_filter=None, top_k=8):
     # Step 3: call Groq directly — no LlamaIndex LLM involved
     client = GroqClient(api_key=st.secrets["GROQ_API_KEY"])
     chat_response = client.chat.completions.create(
-        model="llama3-8b-8192",
+        model="llama-3.1-8b-instant",
         messages=[
             {"role": "system", "content": "You are a financial analyst assistant. Answer questions using only the provided context from financial documents. Be specific and cite relevant details."},
             {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}\n\nAnswer only using the context above. If the context does not contain relevant information, say so explicitly."}
