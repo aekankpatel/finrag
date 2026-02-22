@@ -166,24 +166,40 @@ def load_index():
 
 
 def run_query(index, question, source_filter=None, top_k=8):
-    llm = Groq(model="llama3-8b-8192", api_key=st.secrets["GROQ_API_KEY"])
+    from groq import Groq as GroqClient
+    # Step 1: retrieve chunks using the vector index
     if source_filter:
         filters = MetadataFilters(filters=[
             MetadataFilter(key="source", value=source_filter)
         ])
-        engine = index.as_query_engine(
-            similarity_top_k=top_k,
-            response_mode="compact",
-            filters=filters,
-            llm=llm,
-        )
+        retriever = index.as_retriever(similarity_top_k=top_k, filters=filters)
     else:
-        engine = index.as_query_engine(
-            similarity_top_k=top_k,
-            response_mode="compact",
-            llm=llm,
-        )
-    return engine.query(f"{question} Answer only using information from the provided source documents. If the documents do not contain relevant information, say so explicitly rather than generalizing.")
+        retriever = index.as_retriever(similarity_top_k=top_k)
+
+    nodes = retriever.retrieve(question)
+
+    # Step 2: build context from retrieved chunks
+    context = "\n\n".join([n.text for n in nodes])
+
+    # Step 3: call Groq directly — no LlamaIndex LLM involved
+    client = GroqClient(api_key=st.secrets["GROQ_API_KEY"])
+    chat_response = client.chat.completions.create(
+        model="llama3-8b-8192",
+        messages=[
+            {"role": "system", "content": "You are a financial analyst assistant. Answer questions using only the provided context from financial documents. Be specific and cite relevant details."},
+            {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}\n\nAnswer only using the context above. If the context does not contain relevant information, say so explicitly."}
+        ],
+        temperature=0.1,
+        max_tokens=1024,
+    )
+
+    # Step 4: wrap response to match expected interface
+    class SimpleResponse:
+        def __init__(self, text, source_nodes):
+            self.response = text
+            self.source_nodes = source_nodes
+
+    return SimpleResponse(chat_response.choices[0].message.content, nodes)
 
 
 # ---- Session state ----
