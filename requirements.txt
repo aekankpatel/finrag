@@ -1,0 +1,15 @@
+
+llama-index
+
+llama-index-embeddings-huggingface
+
+llama-index-llms-groq
+
+llama-index-vector-stores-faiss
+
+streamlit
+
+sentence-transformers
+
+tqdm
+

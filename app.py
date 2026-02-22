@@ -4,13 +4,12 @@ from pydantic import Field
 from datetime import datetime
 from llama_index.core import load_index_from_storage, StorageContext, Settings
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
-from llama_index.embeddings.ollama import OllamaEmbedding
-from llama_index.llms.ollama import Ollama
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.llms.groq import Groq
 
 INDEX_DIR = Path("finrag/index")
 PROCESSED_DIR = Path("finrag/data/processed")
 
-# ---- Auto-load all document filenames ----
 ALL_DOCS = sorted([
     f.name for f in PROCESSED_DIR.glob("*.txt")
     if f.name != "manifest.csv"
@@ -142,25 +141,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-class SafeOllamaEmbedding(OllamaEmbedding):
-    max_chars: int = Field(default=3000)
-
-    def _truncate(self, text: str) -> str:
-        if text is None:
-            return ""
-        return text.strip()[: self.max_chars]
-
-    def _get_text_embedding(self, text: str):
-        return super()._get_text_embedding(self._truncate(text))
-
-    def _get_text_embeddings(self, texts):
-        return super()._get_text_embeddings([self._truncate(t) for t in texts])
-
-
 @st.cache_resource(show_spinner="Loading financial index...")
 def load_index():
-    embed_model = SafeOllamaEmbedding(model_name="nomic-embed-text", max_chars=3000)
-    llm = Ollama(model="llama3.1:8b", request_timeout=120.0)
+    embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+    llm = Groq(model="llama3-8b-8192", api_key=st.secrets["GROQ_API_KEY"])
     Settings.embed_model = embed_model
     Settings.llm = llm
     storage_context = StorageContext.from_defaults(persist_dir=str(INDEX_DIR))
@@ -261,7 +245,6 @@ if st.session_state.mode == "Single":
         label = source_filter or "All documents"
         st.markdown(f'<div class="detected-badge">🔍 Searching: {label}</div>', unsafe_allow_html=True)
 
-        # Confidence bar
         if response.source_nodes:
             top_score = response.source_nodes[0].score or 0
             color = confidence_color(top_score)
