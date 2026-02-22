@@ -1,0 +1,7 @@
+finrag/index/
+finrag/data/raw/
+finrag/data/processed/
+__pycache__/
+*.pyc
+.DS_Store
+*.bin

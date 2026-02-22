@@ -1,0 +1,183 @@
+{
+  "avg_score": 0.57,
+  "results": [
+    {
+      "question": "What regulatory risks does Meta face regarding privacy?",
+      "source": "meta_10K_2025.txt",
+      "score": 0.5,
+      "expected_keywords": [
+        "privacy",
+        "GDPR",
+        "regulation",
+        "data"
+      ],
+      "keywords_found": [
+        "GDPR",
+        "data"
+      ],
+      "response_time_sec": 26.42,
+      "answer_preview": "Meta faces significant uncertainty in the interpretation and enforcement of the GDPR, which could lead to substantial monetary penalties for non-compliance. This uncertainty may result from various Eu"
+    },
+    {
+      "question": "How does Meta describe risks related to AI?",
+      "source": "meta_10K_2025.txt",
+      "score": 0.75,
+      "expected_keywords": [
+        "AI",
+        "artificial intelligence",
+        "regulation",
+        "data"
+      ],
+      "keywords_found": [
+        "AI",
+        "regulation",
+        "data"
+      ],
+      "response_time_sec": 23.82,
+      "answer_preview": "The improper use by any third party could result in societal harms, including activities that threaten people's safety or well-being on- or offline. While we may mitigate certain risks associated with"
+    },
+    {
+      "question": "What is Amazon's main source of revenue?",
+      "source": "Amazon_10K_2025.txt",
+      "score": 0.4,
+      "expected_keywords": [
+        "AWS",
+        "cloud",
+        "retail",
+        "revenue",
+        "services"
+      ],
+      "keywords_found": [
+        "revenue",
+        "services"
+      ],
+      "response_time_sec": 17.9,
+      "answer_preview": "Amazon's primary source of revenue is the sale of a wide range of products and services to customers."
+    },
+    {
+      "question": "What risks does Amazon highlight in international operations?",
+      "source": "Amazon_10K_2025.txt",
+      "score": 0.5,
+      "expected_keywords": [
+        "international",
+        "regulation",
+        "currency",
+        "political"
+      ],
+      "keywords_found": [
+        "regulation",
+        "political"
+      ],
+      "response_time_sec": 17.04,
+      "answer_preview": "Local economic and political conditions; government regulation; restrictive governmental actions such as trade protection or retaliatory measures."
+    },
+    {
+      "question": "How did NVIDIA describe demand for its data center products?",
+      "source": "NVIDIA_10Q_2025Q3.txt",
+      "score": 0.6,
+      "expected_keywords": [
+        "data center",
+        "demand",
+        "GPU",
+        "AI",
+        "revenue"
+      ],
+      "keywords_found": [
+        "data center",
+        "demand",
+        "AI"
+      ],
+      "response_time_sec": 19.06,
+      "answer_preview": "NVIDIA described demand for its data center products as crucial, stating that it is driven by various factors such as the availability of data centers, energy, and capital to support the buildout of i"
+    },
+    {
+      "question": "What risks does NVIDIA mention regarding export controls?",
+      "source": "NVIDIA_10Q_2025Q3.txt",
+      "score": 0.25,
+      "expected_keywords": [
+        "export",
+        "China",
+        "control",
+        "restrictions"
+      ],
+      "keywords_found": [
+        "control"
+      ],
+      "response_time_sec": 19.86,
+      "answer_preview": "Incorrect compliance with regulations, allegations that their efforts do not meet the \"spirit\" of applicable regulations, diversion of controlled products, excess inventory or incurring supply charges"
+    },
+    {
+      "question": "How does Bank of America describe interest rate risk?",
+      "source": "BAC+2024+Annual+Report.txt",
+      "score": 0.75,
+      "expected_keywords": [
+        "interest rate",
+        "risk",
+        "net interest income",
+        "federal"
+      ],
+      "keywords_found": [
+        "interest rate",
+        "risk",
+        "net interest income"
+      ],
+      "response_time_sec": 21.35,
+      "answer_preview": "Interest rate risk represents the potential change in net interest income caused by movements in market interest rates. It is also described as the most significant market risk exposure to our banking"
+    },
+    {
+      "question": "What are the key risk types Bank of America faces?",
+      "source": "BAC+2024+Annual+Report.txt",
+      "score": 1.0,
+      "expected_keywords": [
+        "credit",
+        "market",
+        "operational",
+        "liquidity",
+        "compliance"
+      ],
+      "keywords_found": [
+        "credit",
+        "market",
+        "operational",
+        "liquidity",
+        "compliance"
+      ],
+      "response_time_sec": 17.2,
+      "answer_preview": "The seven key types of risk faced by the Corporation are strategic, credit, market, liquidity, compliance, operational, and reputational."
+    },
+    {
+      "question": "What risks does Apple highlight related to supply chain?",
+      "source": "aaple_10Q_2025Q1.txt",
+      "score": 0.5,
+      "expected_keywords": [
+        "supply",
+        "manufacturer",
+        "component",
+        "sourcing"
+      ],
+      "keywords_found": [
+        "supply",
+        "manufacturer"
+      ],
+      "response_time_sec": 20.41,
+      "answer_preview": "Supply disruptions caused by restrictive measures, industrial accidents at suppliers and contract manufacturers, interruption by fire, power shortages, nuclear power plant accidents and other industri"
+    },
+    {
+      "question": "How does Apple describe competition risks?",
+      "source": "aaple_10Q_2025Q1.txt",
+      "score": 0.5,
+      "expected_keywords": [
+        "competition",
+        "market",
+        "product",
+        "price"
+      ],
+      "keywords_found": [
+        "competition",
+        "market"
+      ],
+      "response_time_sec": 20.69,
+      "answer_preview": "There is no mention of competition risks in the provided context. The text discusses various external factors that could impact the company's business, including market conditions, trade measures, pub"
+    }
+  ]
+}
