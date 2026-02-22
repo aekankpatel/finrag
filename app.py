@@ -165,7 +165,7 @@ def load_index():
     return load_index_from_storage(storage_context)
 
 
-def run_query(index, question, source_filter=None, top_k=8):
+def run_query(index, question, source_filter=None, top_k=8, llm=None):
     if source_filter:
         filters = MetadataFilters(filters=[
             MetadataFilter(key="source", value=source_filter)
