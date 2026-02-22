@@ -24,10 +24,22 @@ def ensure_index():
 
 ensure_index()
 
-ALL_DOCS = sorted([
-    f.name for f in PROCESSED_DIR.glob("*.txt")
-    if f.name != "manifest.csv"
-]) if PROCESSED_DIR.exists() else []
+ALL_DOCS = [
+    "meta_10K_2025.txt",
+    "Amazon_10K_2025.txt",
+    "NVIDIA_10Q_2025Q3.txt",
+    "BAC+2024+Annual+Report.txt",
+    "GoldmanSachsBDC_10Q._2025Q2pdf.txt",
+    "aaple_10Q_2025Q1.txt",
+    "Microsoft_10Q_2025Q3.txt",
+    "tesla_10K_2025.txt",
+    "Walmart (WMT) Q4 2026 Earnings Call Transcript | The Motley Fool.txt",
+    "jpm-4q25-earnings-call-transcript.txt",
+    "capital-markets-forecast-2026.txt",
+    "Global Economic Prospects, January 2026.txt",
+    "ey-global-banking-outlook-2025-en.txt",
+    "goldman-sachs-2026-global-ma-outlook.txt",
+]
 
 COMPANY_MAP = {
     "meta": "meta_10K_2025.txt",
