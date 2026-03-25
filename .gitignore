@@ -8,3 +8,5 @@ __pycache__/
 finrag/index/
 index/
 index/
+data/raw/
+data/processed/
