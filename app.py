@@ -1,18 +1,21 @@
 import streamlit as st
 from pathlib import Path
 from datetime import datetime
-import gdown
+import urllib.request
 from llama_index.core import load_index_from_storage, StorageContext, Settings
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 INDEX_DIR = Path("finrag/index")
-FOLDER_ID = "1NiAUNTdyA6OX5V1ZVxoT1KrgOKk2kEQs"
+GITHUB_BASE = "https://raw.githubusercontent.com/aekankpatel/finrag-index/main"
+INDEX_FILES = ["docstore.json", "index_store.json", "default__vector_store.json", "graph_store.json"]
 
 def ensure_index():
     if not INDEX_DIR.exists() or not (INDEX_DIR / "docstore.json").exists():
         INDEX_DIR.mkdir(parents=True, exist_ok=True)
-        gdown.download_folder(id=FOLDER_ID, output=str(INDEX_DIR), quiet=False)
+        for fname in INDEX_FILES:
+            url = f"{GITHUB_BASE}/{fname}"
+            urllib.request.urlretrieve(url, INDEX_DIR / fname)
 
 ensure_index()
 
