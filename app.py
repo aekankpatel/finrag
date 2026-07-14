@@ -1,13 +1,13 @@
 import streamlit as st
 from pathlib import Path
 from datetime import datetime
-import urllib.request
+import requests
 from llama_index.core import load_index_from_storage, StorageContext, Settings
 from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 INDEX_DIR = Path("finrag/index")
-GITHUB_BASE = "https://raw.githubusercontent.com/aekankpatel/finrag-index/main"
+GITHUB_BASE = "https://media.githubusercontent.com/media/aekankpatel/finrag-index/main"
 INDEX_FILES = ["docstore.json", "index_store.json", "default__vector_store.json", "graph_store.json"]
 
 def ensure_index():
@@ -15,7 +15,11 @@ def ensure_index():
         INDEX_DIR.mkdir(parents=True, exist_ok=True)
         for fname in INDEX_FILES:
             url = f"{GITHUB_BASE}/{fname}"
-            urllib.request.urlretrieve(url, INDEX_DIR / fname)
+            r = requests.get(url, stream=True, timeout=120)
+            r.raise_for_status()
+            with open(INDEX_DIR / fname, "wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    f.write(chunk)
 
 ensure_index()
 
