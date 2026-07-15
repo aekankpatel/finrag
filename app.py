@@ -17,11 +17,17 @@ def ensure_index():
         INDEX_DIR.mkdir(parents=True, exist_ok=True)
         for fname in INDEX_FILES:
             base = LFS_BASE if fname in LFS_FILES else RAW_BASE
-            r = requests.get(f"{base}/{fname}", stream=True, timeout=300)
+            url = f"{base}/{fname}"
+            print(f"Downloading {fname} from {url}", flush=True)
+            r = requests.get(url, stream=True, timeout=300)
             r.raise_for_status()
-            with open(INDEX_DIR / fname, "wb") as f:
+            dest = INDEX_DIR / fname
+            with open(dest, "wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
+            size = dest.stat().st_size
+            preview = open(dest, "rb").read(80)
+            print(f"  -> {size} bytes | starts with: {preview}", flush=True)
 
 ensure_index()
 
