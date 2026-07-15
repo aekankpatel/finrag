@@ -18,16 +18,11 @@ def ensure_index():
         for fname in INDEX_FILES:
             base = LFS_BASE if fname in LFS_FILES else RAW_BASE
             url = f"{base}/{fname}"
-            print(f"Downloading {fname} from {url}", flush=True)
             r = requests.get(url, stream=True, timeout=300)
             r.raise_for_status()
-            dest = INDEX_DIR / fname
-            with open(dest, "wb") as f:
+            with open(INDEX_DIR / fname, "wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     f.write(chunk)
-            size = dest.stat().st_size
-            preview = open(dest, "rb").read(80)
-            print(f"  -> {size} bytes | starts with: {preview}", flush=True)
 
 ensure_index()
 
@@ -74,9 +69,9 @@ def detect_source(question):
     return None
 
 def confidence_color(score):
-    if score >= 0.75: return "#00c896"
-    elif score >= 0.55: return "#f5a623"
-    else: return "#e05c5c"
+    if score >= 0.75: return "#166534"
+    elif score >= 0.55: return "#92400E"
+    else: return "#991B1B"
 
 def format_export(question, answer, sources, source_filter):
     lines = ["FinRAG — Financial Intelligence Export",
@@ -90,16 +85,118 @@ def format_export(question, answer, sources, source_filter):
         lines.append(node.text[:300].strip())
     return "\n".join(lines)
 
-st.set_page_config(page_title="FinRAG", page_icon="📊", layout="wide")
-st.markdown("""<style>
-.main { background-color: #0f1117; }
-.source-card { background-color: #1e2130; border-left: 3px solid #00c896; padding: 12px 16px; border-radius: 6px; margin-bottom: 10px; font-size: 0.85em; color: #cdd6f4; }
-.answer-box { background-color: #1e2130; border-left: 4px solid #7c93f7; padding: 16px 20px; border-radius: 8px; color: #ffffff; font-size: 1em; line-height: 1.6; }
-.detected-badge { background-color: #1e2130; border: 1px solid #00c896; color: #00c896; padding: 4px 10px; border-radius: 20px; font-size: 0.8em; display: inline-block; margin-bottom: 12px; }
-.history-question { background-color: #2a2d3e; border-radius: 8px; padding: 10px 14px; color: #a0aec0; font-size: 0.9em; margin-bottom: 4px; }
-.history-answer { background-color: #1e2130; border-left: 3px solid #7c93f7; border-radius: 6px; padding: 10px 14px; color: #cdd6f4; font-size: 0.9em; margin-bottom: 16px; }
-.compare-col { background-color: #1e2130; border-radius: 8px; padding: 16px; color: #ffffff; line-height: 1.6; height: 100%; }
-</style>""", unsafe_allow_html=True)
+st.set_page_config(page_title="FinRAG", page_icon="📰", layout="wide")
+st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
+    background-color: #F6F1EB !important;
+    font-family: 'DM Sans', sans-serif;
+}
+[data-testid="stSidebar"] {
+    background-color: #EDE8E1 !important;
+    border-right: 1px solid #D6CFC6;
+}
+[data-testid="stSidebar"] * { font-family: 'DM Sans', sans-serif; }
+h1 { font-family: 'Playfair Display', serif !important; font-weight: 600 !important; color: #1C1410 !important; letter-spacing: -0.5px; }
+h2, h3 { font-family: 'Playfair Display', serif !important; font-weight: 400 !important; color: #2D2219 !important; }
+.finrag-header { border-bottom: 2px solid #1C1410; padding-bottom: 10px; margin-bottom: 4px; }
+.finrag-kicker { font-family: 'DM Sans', sans-serif; font-size: 0.7em; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #92400E; margin-bottom: 6px; }
+.answer-box {
+    background: #FFFFFF;
+    border: 1px solid #D6CFC6;
+    border-top: 3px solid #1C1410;
+    padding: 20px 24px;
+    border-radius: 2px;
+    color: #1C1410;
+    font-family: 'Lora', serif;
+    font-size: 1em;
+    line-height: 1.8;
+    margin: 8px 0 16px 0;
+}
+.source-card {
+    background: #FFFFFF;
+    border: 1px solid #D6CFC6;
+    border-left: 3px solid #92400E;
+    padding: 12px 16px;
+    border-radius: 2px;
+    margin-bottom: 8px;
+    font-size: 0.83em;
+    color: #3D3530;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+}
+.source-card strong { color: #1C1410; font-weight: 500; }
+.source-card code { background: #F0EBE4; color: #92400E; padding: 1px 5px; border-radius: 3px; font-size: 0.9em; }
+.detected-badge {
+    background: #FEF3C7;
+    border: 1px solid #D97706;
+    color: #92400E;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 0.75em;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    display: inline-block;
+    margin-bottom: 12px;
+    font-family: 'DM Sans', sans-serif;
+    text-transform: uppercase;
+}
+.history-question {
+    background: #EDE8E1;
+    border-radius: 3px;
+    padding: 9px 14px;
+    color: #5C4F44;
+    font-size: 0.88em;
+    margin-bottom: 3px;
+    font-family: 'DM Sans', sans-serif;
+}
+.history-answer {
+    background: #FFFFFF;
+    border-left: 2px solid #92400E;
+    padding: 9px 14px;
+    color: #3D3530;
+    font-family: 'Lora', serif;
+    font-size: 0.88em;
+    line-height: 1.6;
+    margin-bottom: 14px;
+}
+.compare-col {
+    background: #FFFFFF;
+    border: 1px solid #D6CFC6;
+    border-top: 3px solid #1C1410;
+    padding: 16px;
+    border-radius: 2px;
+    color: #1C1410;
+    font-family: 'Lora', serif;
+    line-height: 1.75;
+}
+.confidence-bar-bg { background: #E8E1D8; border-radius: 2px; height: 6px; width: 100%; margin-top: 5px; }
+.stTextInput > div > div > input {
+    border: 1px solid #C4BCB3 !important;
+    border-radius: 2px !important;
+    background: #FFFFFF !important;
+    color: #1C1410 !important;
+    font-family: 'DM Sans', sans-serif !important;
+}
+.stTextInput > div > div > input:focus {
+    border-color: #92400E !important;
+    box-shadow: 0 0 0 1px #92400E !important;
+}
+.stButton > button {
+    border: 1px solid #C4BCB3 !important;
+    border-radius: 2px !important;
+    background: transparent !important;
+    color: #3D3530 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.85em !important;
+}
+.stButton > button:hover { background: #EDE8E1 !important; border-color: #92400E !important; color: #92400E !important; }
+.stDownloadButton > button { background: #1C1410 !important; color: #F6F1EB !important; border: none !important; border-radius: 2px !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.85em !important; }
+.stDownloadButton > button:hover { background: #2D2219 !important; }
+[data-testid="stMarkdownContainer"] p { color: #3D3530; font-family: 'DM Sans', sans-serif; }
+</style>
+""", unsafe_allow_html=True)
 
 @st.cache_resource(show_spinner="Loading financial index...")
 def load_index():
@@ -140,15 +237,15 @@ if "mode" not in st.session_state: st.session_state.mode = "Single"
 index = load_index()
 
 with st.sidebar:
-    st.header("⚙️ Settings")
+    st.markdown('<p class="finrag-kicker">Settings</p>', unsafe_allow_html=True)
     st.session_state.mode = st.radio("Mode", ["Single", "Compare"], horizontal=True)
     if st.session_state.mode == "Single":
         manual_filter = st.selectbox("Filter by document", ["Auto-detect", "All documents"] + ALL_DOCS)
     else:
         manual_filter = "All documents"
-    top_k = st.slider("Number of source chunks", min_value=3, max_value=15, value=8)
+    top_k = st.slider("Source passages", min_value=3, max_value=15, value=8)
     st.divider()
-    st.markdown("**Suggested questions:**")
+    st.markdown('<p class="finrag-kicker">Suggested questions</p>', unsafe_allow_html=True)
     suggestions = [
         "What are Meta's key regulatory risks?","How did NVIDIA describe AI demand?",
         "What is Amazon's revenue outlook?","What risks does Apple highlight in their 10-Q?",
@@ -158,75 +255,77 @@ with st.sidebar:
     for s in suggestions:
         if st.button(s, use_container_width=True): st.session_state.question = s
     st.divider()
-    if st.button("🗑️ Clear chat history", use_container_width=True):
+    if st.button("Clear history", use_container_width=True):
         st.session_state.chat_history = []
         st.rerun()
 
-st.title("📊 FinRAG")
-st.caption("Retrieval-Augmented Intelligence for Financial Documents")
+st.markdown('<p class="finrag-kicker">Financial intelligence</p>', unsafe_allow_html=True)
+st.markdown('<div class="finrag-header"><h1>FinRAG</h1></div>', unsafe_allow_html=True)
+st.markdown('<p style="color:#78716C;font-family:\'DM Sans\',sans-serif;font-size:0.9em;margin-top:4px;">Ask questions across earnings calls, 10-Ks, and market reports.</p>', unsafe_allow_html=True)
 
 if st.session_state.chat_history:
-    st.subheader("💬 Chat History")
+    st.markdown('<p class="finrag-kicker" style="margin-top:24px;">Previous questions</p>', unsafe_allow_html=True)
     for entry in st.session_state.chat_history:
-        st.markdown(f'<div class="history-question">🧑 {entry["question"]} <span style="float:right;font-size:0.75em;color:#555">{entry["time"]} · {entry["source"]}</span></div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="history-answer">🤖 {entry["answer"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="history-question">{entry["question"]} <span style="float:right;font-size:0.75em;color:#A8998C">{entry["time"]} · {entry["source"]}</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="history-answer">{entry["answer"]}</div>', unsafe_allow_html=True)
     st.divider()
 
 if st.session_state.mode == "Single":
-    question = st.text_input("Ask a question about your financial documents", value=st.session_state.question, placeholder="e.g. What are Meta's key regulatory risks?")
+    question = st.text_input("", value=st.session_state.question, placeholder="e.g. What are Meta's key regulatory risks?", label_visibility="collapsed")
     if question:
         if manual_filter == "Auto-detect": source_filter = detect_source(question)
         elif manual_filter == "All documents": source_filter = None
         else: source_filter = manual_filter
-        with st.spinner("Thinking..."):
+        with st.spinner("Searching documents..."):
             response = run_query(index, question, source_filter, top_k)
         label = source_filter or "All documents"
-        st.markdown(f'<div class="detected-badge">🔍 Searching: {label}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="detected-badge">Source — {label}</div>', unsafe_allow_html=True)
         if response.source_nodes:
             top_score = response.source_nodes[0].score or 0
             color = confidence_color(top_score)
-            st.markdown(f"""<div style="margin-bottom:12px;"><span style="font-size:0.8em;color:#888;">Retrieval confidence</span><br>
-                <div style="background:#2a2d3e;border-radius:10px;height:8px;width:100%;margin-top:4px;">
-                <div style="background:{color};width:{min(int(top_score*100),100)}%;height:8px;border-radius:10px;"></div></div>
-                <span style="font-size:0.75em;color:{color};">{round(top_score*100,1)}%</span></div>""", unsafe_allow_html=True)
-        st.subheader("🧠 Answer")
+            st.markdown(f"""<div style="margin-bottom:16px;">
+                <span style="font-size:0.75em;color:#78716C;font-family:'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:0.08em;">Retrieval confidence</span>
+                <div class="confidence-bar-bg"><div style="background:{color};width:{min(int(top_score*100),100)}%;height:6px;border-radius:2px;"></div></div>
+                <span style="font-size:0.75em;color:{color};font-family:'DM Sans',sans-serif;font-weight:500;">{round(top_score*100,1)}%</span>
+            </div>""", unsafe_allow_html=True)
+        st.markdown('<p class="finrag-kicker">Answer</p>', unsafe_allow_html=True)
         st.markdown(f'<div class="answer-box">{response.response}</div>', unsafe_allow_html=True)
-        st.download_button(label="⬇️ Export answer as .txt",
+        st.download_button(label="Export as .txt",
             data=format_export(question, response.response, response.source_nodes, source_filter),
             file_name=f"finrag_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt", mime="text/plain")
-        st.subheader("📄 Sources")
+        st.markdown('<p class="finrag-kicker" style="margin-top:20px;">Source passages</p>', unsafe_allow_html=True)
         for i, node in enumerate(response.source_nodes, 1):
             source = node.metadata.get("source", "unknown")
             score = round(node.score, 4) if node.score else "N/A"
             preview = node.text[:400].strip().replace("\n", " ")
-            st.markdown(f'<div class="source-card"><strong>[{i}] {source}</strong> &nbsp;|&nbsp; Score: <code>{score}</code><br><br>{preview}...</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="source-card"><strong>[{i}] {source}</strong> &nbsp;&middot;&nbsp; <code>{score}</code><br><br>{preview}…</div>', unsafe_allow_html=True)
         st.session_state.chat_history.append({"question": question,
             "answer": response.response[:300] + "..." if len(response.response) > 300 else response.response,
             "source": label, "time": datetime.now().strftime("%H:%M")})
         st.session_state.question = ""
 else:
-    st.subheader("⚖️ Compare Mode")
-    st.caption("Ask the same question across two documents side by side")
-    compare_question = st.text_input("Question to compare", placeholder="e.g. What are the key risk factors?")
+    st.markdown('<p class="finrag-kicker" style="margin-top:16px;">Side-by-side comparison</p>', unsafe_allow_html=True)
+    st.markdown('<p style="color:#78716C;font-family:\'DM Sans\',sans-serif;font-size:0.88em;margin-bottom:12px;">Ask the same question across two documents.</p>', unsafe_allow_html=True)
+    compare_question = st.text_input("", placeholder="e.g. What are the key risk factors?", label_visibility="collapsed")
     col_a, col_b = st.columns(2)
-    with col_a: doc_a = st.selectbox("Company A", ALL_DOCS, index=0)
-    with col_b: doc_b = st.selectbox("Company B", ALL_DOCS, index=1)
-    if compare_question and st.button("⚖️ Compare", use_container_width=True):
+    with col_a: doc_a = st.selectbox("Document A", ALL_DOCS, index=0)
+    with col_b: doc_b = st.selectbox("Document B", ALL_DOCS, index=1)
+    if compare_question and st.button("Compare documents", use_container_width=True):
         col_a, col_b = st.columns(2)
         with col_a:
-            st.markdown(f"### 🏢 {doc_a}")
-            with st.spinner(f"Querying {doc_a}..."): resp_a = run_query(index, compare_question, doc_a, top_k)
+            st.markdown(f'<p class="finrag-kicker">{doc_a}</p>', unsafe_allow_html=True)
+            with st.spinner(f"Searching {doc_a}..."): resp_a = run_query(index, compare_question, doc_a, top_k)
             score_a = resp_a.source_nodes[0].score if resp_a.source_nodes else 0
             color_a = confidence_color(score_a)
-            st.markdown(f'<div style="font-size:0.75em;color:{color_a};margin-bottom:8px;">Confidence: {round(score_a*100,1)}%</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:0.75em;color:{color_a};font-family:\'DM Sans\',sans-serif;font-weight:500;margin-bottom:8px;">{round(score_a*100,1)}% confidence</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="compare-col">{resp_a.response}</div>', unsafe_allow_html=True)
         with col_b:
-            st.markdown(f"### 🏢 {doc_b}")
-            with st.spinner(f"Querying {doc_b}..."): resp_b = run_query(index, compare_question, doc_b, top_k)
+            st.markdown(f'<p class="finrag-kicker">{doc_b}</p>', unsafe_allow_html=True)
+            with st.spinner(f"Searching {doc_b}..."): resp_b = run_query(index, compare_question, doc_b, top_k)
             score_b = resp_b.source_nodes[0].score if resp_b.source_nodes else 0
             color_b = confidence_color(score_b)
-            st.markdown(f'<div style="font-size:0.75em;color:{color_b};margin-bottom:8px;">Confidence: {round(score_b*100,1)}%</div>', unsafe_allow_html=True)
+            st.markdown(f'<div style="font-size:0.75em;color:{color_b};font-family:\'DM Sans\',sans-serif;font-weight:500;margin-bottom:8px;">{round(score_b*100,1)}% confidence</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="compare-col">{resp_b.response}</div>', unsafe_allow_html=True)
         export_text = f"FinRAG — Comparison Export\nGenerated: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\nQUESTION: {compare_question}\n\n{'='*60}\n{doc_a}:\n{resp_a.response}\n\n{'='*60}\n{doc_b}:\n{resp_b.response}"
-        st.download_button(label="⬇️ Export comparison as .txt", data=export_text,
+        st.download_button(label="Export comparison as .txt", data=export_text,
             file_name=f"finrag_compare_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt", mime="text/plain")
