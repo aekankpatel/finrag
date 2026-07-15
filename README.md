@@ -1,6 +1,6 @@
 ---
 title: FinRAG
-emoji: 
+emoji: 📈
 colorFrom: green
 colorTo: blue
 sdk: streamlit
