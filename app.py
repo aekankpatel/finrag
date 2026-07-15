@@ -7,7 +7,7 @@ from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 INDEX_DIR = Path("finrag/index")
-GITHUB_BASE = "https://media.githubusercontent.com/media/aekankpatel/finrag-index/main"
+GITHUB_BASE = "https://raw.githubusercontent.com/aekankpatel/finrag-index/main"
 INDEX_FILES = ["docstore.json", "index_store.json", "default__vector_store.json", "graph_store.json"]
 
 def ensure_index():
