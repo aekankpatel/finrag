@@ -7,15 +7,17 @@ from llama_index.core.vector_stores import MetadataFilter, MetadataFilters
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 INDEX_DIR = Path("finrag/index")
-GITHUB_BASE = "https://raw.githubusercontent.com/aekankpatel/finrag-index/main"
+RAW_BASE = "https://raw.githubusercontent.com/aekankpatel/finrag-index/main"
+LFS_BASE = "https://media.githubusercontent.com/media/aekankpatel/finrag-index/main"
+LFS_FILES = {"default__vector_store.json"}
 INDEX_FILES = ["docstore.json", "index_store.json", "default__vector_store.json", "graph_store.json"]
 
 def ensure_index():
     if not INDEX_DIR.exists() or not (INDEX_DIR / "docstore.json").exists():
         INDEX_DIR.mkdir(parents=True, exist_ok=True)
         for fname in INDEX_FILES:
-            url = f"{GITHUB_BASE}/{fname}"
-            r = requests.get(url, stream=True, timeout=120)
+            base = LFS_BASE if fname in LFS_FILES else RAW_BASE
+            r = requests.get(f"{base}/{fname}", stream=True, timeout=300)
             r.raise_for_status()
             with open(INDEX_DIR / fname, "wb") as f:
                 for chunk in r.iter_content(chunk_size=8192):
