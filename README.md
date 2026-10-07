@@ -53,7 +53,7 @@ The **auto-detect** feature works by matching keywords in your question against 
 
 ### Step 4 — Answer generation
 
-The top 5 retrieved chunks (up to 500 tokens each) are assembled into a context block and sent to the Groq API along with the question. The model used is `llama-3.1-8b-instant`, which is fast and runs on Groq's inference hardware.
+The top 5 retrieved chunks (up to 500 tokens each) are assembled into a context block and sent to the Groq API along with the question. The model used is `llama-3.3-70b-versatile`, which is fast and runs on Groq's inference hardware.
 
 The system prompt instructs the model to answer strictly from the provided context and not to introduce outside knowledge. This keeps answers grounded and prevents hallucination on financial specifics like revenue figures or risk disclosures.
 
@@ -79,7 +79,7 @@ Cosine similarity search across all stored chunk vectors
 Top-k chunks retrieved (optionally filtered to one document)
         |
         v
-Top 5 chunks sent as context to llama-3.1-8b-instant via Groq
+Top 5 chunks sent as context to llama-3.3-70b-versatile via Groq
         |
         v
 LLM generates answer grounded in context
@@ -128,7 +128,7 @@ Answer + source passages + confidence score displayed
 | Frontend | Streamlit |
 | Embeddings | `BAAI/bge-small-en-v1.5` (HuggingFace) |
 | Vector index | LlamaIndex `SimpleVectorStore` |
-| LLM | `llama-3.1-8b-instant` via Groq API |
+| LLM | `llama-3.3-70b-versatile` via Groq API |
 | Index storage | GitHub + Git LFS ([aekankpatel/finrag-index](https://github.com/aekankpatel/finrag-index)) |
 | Hosting | HuggingFace Spaces |
 

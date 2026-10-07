@@ -114,7 +114,7 @@ def run_query(index, question, source_filter=None, top_k=8):
     context = "\n\n".join([n.text[:500] for n in nodes[:5]])
     client = GroqClient(api_key=st.secrets["GROQ_API_KEY"])
     chat_response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="llama-3.3-70b-versatile",
         messages=[
             {"role": "system", "content": "You are a financial analyst assistant. Answer questions using only the provided context from financial documents. Be specific and cite relevant details."},
             {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}\n\nAnswer only using the context above."}
